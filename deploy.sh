@@ -7,9 +7,16 @@ set -e
 IMAGE_NAME="poster-editing-backend"
 CONTAINER_NAME="poster-editing-backend"
 PORT=3001
+ENV_FILE="/opt/poster-design/.env"
 
 echo "=== Building Docker image ==="
 docker build -t $IMAGE_NAME .
+
+echo "=== Checking env file exists ==="
+if [ ! -f "$ENV_FILE" ]; then
+    echo "ERROR: Env file not found at $ENV_FILE"
+    exit 1
+fi
 
 echo "=== Stopping and removing existing container (if exists) ==="
 if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
@@ -21,7 +28,7 @@ echo "=== Running new container ==="
 docker run -d \
     --name $CONTAINER_NAME \
     -p $PORT:3001 \
-    --env-file .env.local \
+    --env-file "$ENV_FILE" \
     $IMAGE_NAME
 
 echo "=== Deployment successful ==="
