@@ -4,7 +4,11 @@ import dotenv from "dotenv"
 import { editPoster } from "./routes/editPoster"
 
 // Load environment variables
+<<<<<<< HEAD
 dotenv.config({ path: process.env.DOTENV_CONFIG_PATH || ".env" })
+=======
+dotenv.config()
+>>>>>>> ac31dac27b3e6c915a1fe53fc44fe34faffe9d3a
 
 const app = express()
 const PORT = process.env.PORT || 3001
