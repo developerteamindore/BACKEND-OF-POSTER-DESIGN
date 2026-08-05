@@ -8,6 +8,11 @@ IMAGE_NAME="poster-editing-backend"
 CONTAINER_NAME="poster-editing-backend"
 PORT=3001
 ENV_FILE="/opt/poster-design/.env"
+BRANCH_NAME="deployment-branch"
+
+echo "=== Pulling latest changes from $BRANCH_NAME ==="
+git checkout $BRANCH_NAME
+git pull origin $BRANCH_NAME
 
 echo "=== Building Docker image ==="
 docker build -t $IMAGE_NAME .
