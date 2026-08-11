@@ -2,12 +2,45 @@ import { Request, Response } from "express"
 import { getOpenAI, OPENAI_IMAGE_MODEL } from "../lib/openai"
 import { SYSTEM_PROMPT } from "../lib/systemPrompt"
 import { isValidBase64 } from "../lib/imageUtils"
+import { pdfToBase64Image } from "../lib/pdfToImage"
 import type { EditRequest, EditResponse } from "../types"
 
 export async function editPoster(req: Request, res: Response): Promise<void> {
   try {
     const body = req.body as EditRequest
-    const { posterBase64, mimeType, branding } = body
+    let { posterBase64, mimeType, branding } = body
+
+    // Convert PDF to image if needed
+    if (mimeType?.toLowerCase() === 'application/pdf') {
+      console.log('Converting PDF to image...')
+      console.log('Base64 length:', posterBase64?.length)
+      
+      try {
+        const pdfBuffer = Buffer.from(posterBase64, 'base64')
+        console.log('PDF buffer size:', pdfBuffer.length)
+        
+        const converted = await pdfToBase64Image(pdfBuffer)
+        posterBase64 = converted.base64
+        mimeType = converted.mimeType
+        console.log('PDF converted successfully, new mimeType:', mimeType)
+      } catch (pdfError) {
+        console.error('PDF conversion failed:', pdfError)
+        res.status(400).json({
+          success: false,
+          error: `PDF conversion failed: ${pdfError instanceof Error ? pdfError.message : String(pdfError)}`
+        } as EditResponse)
+        return
+      }
+    }
+
+    // Validate that PDF was converted to image
+    if (mimeType?.toLowerCase() === 'application/pdf') {
+      res.status(400).json({
+        success: false,
+        error: 'PDF was not converted to image. Conversion may have failed silently.'
+      } as EditResponse)
+      return
+    }
 
     if (!posterBase64 || !branding?.companyName || !branding?.website || !branding?.phone) {
       res.status(400).json({
