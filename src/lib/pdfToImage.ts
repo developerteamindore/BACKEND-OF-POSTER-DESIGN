@@ -26,9 +26,10 @@ export async function pdfToBase64Image(pdfBuffer: Buffer): Promise<{ base64: str
     
     // Render PDF page to canvas
     await page.render({
-      canvasContext: context,
-      viewport: viewport
-    }).promise
+  canvasContext: context,
+  viewport: viewport,
+  canvas: canvas
+}).promise
     
     // Convert canvas to base64 (JPEG for smaller file size)
     const imageBuffer = canvas.toBuffer('image/jpeg', { quality: 0.9 })
