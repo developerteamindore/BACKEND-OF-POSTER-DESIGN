@@ -12,6 +12,13 @@ WORKDIR /app
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g; s|http://security.debian.org|https://security.debian.org|g' \
     /etc/apt/sources.list /etc/apt/sources.list.d/*.sources 2>/dev/null || true
 
+# node:*-bookworm-slim has no CA trust store, so apt's HTTPS transport can't
+# verify anything yet. Bootstrap ca-certificates with verification off just
+# for this one install, then verify normally for every package after.
+RUN apt-get update -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false \
+    && apt-get install -y --no-install-recommends -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false ca-certificates \
+    && update-ca-certificates
+
 # Native dependencies required to build canvas
 RUN apt-get update && apt-get install -y \
     python3 \
@@ -48,6 +55,13 @@ WORKDIR /app
 # inspect plain HTTP (port 80), so it silently drops those connections.
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g; s|http://security.debian.org|https://security.debian.org|g' \
     /etc/apt/sources.list /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+
+# node:*-bookworm-slim has no CA trust store, so apt's HTTPS transport can't
+# verify anything yet. Bootstrap ca-certificates with verification off just
+# for this one install, then verify normally for every package after.
+RUN apt-get update -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false \
+    && apt-get install -y --no-install-recommends -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false ca-certificates \
+    && update-ca-certificates
 
 # Runtime libraries required by canvas
 RUN apt-get update && apt-get install -y \
