@@ -113,7 +113,7 @@ Keep everything else exactly as it is in the original design.`
         {
           type: "image_generation",
           action: "edit",
-          quality: "high",
+          quality: "low",
         },
       ],
     } as unknown as Parameters<ReturnType<typeof getOpenAI>["responses"]["create"]>[0])
